@@ -5,6 +5,7 @@ import com.example.curso.entities.User;
 import com.example.curso.repositories.UserRepository;
 import com.example.curso.services.exceptions.DatabaseException;
 import com.example.curso.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -42,15 +43,21 @@ public class UserService {
         }
     }
 
-    public User update(Long id, User obj){
-        User entity = repository.getReferenceById(id);
-        updateData(entity, obj);
-        return repository.save(entity);
+    public User update(Long id, User obj) {
+        try {
+            User entity;
+            entity = repository.getReferenceById(id);
+            updateData(entity, obj);
+            return repository.save(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException(id);
+        }
     }
 
-    private void updateData(User entity, User obj) {
-        entity.setName(obj.getName());
-        entity.setEmail(obj.getEmail());
-        entity.setPhone(obj.getPhone());
-    }
+        private void updateData (User entity, User obj){
+            entity.setName(obj.getName());
+            entity.setEmail(obj.getEmail());
+            entity.setPhone(obj.getPhone());
+        }
+
 }
